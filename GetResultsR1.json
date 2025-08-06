@@ -1,13 +1,59 @@
 {
+  "$schema": "https://json-schema.org/draft-2020-12/schema",
   "metadata": {
-    "schema_version": "2.5",
+    "schema_version": "2.6",
     "last_updated": "2024-07-31",
-    "purpose": "Govern AI responses for accuracy, actionability, and domain-specific compliance",
+    "purpose": "Govern AI responses for accuracy, actionability, and domain-specific compliance with dual-language support",
+    "language_support": {
+      "international_technical": {
+        "standard": "ISO/IEC 23894:2023",
+        "dictionary": "Merriam-Webster Technical Dictionary",
+        "citation_style": "IEEE",
+        "spelling_conventions": {
+          "primary": "en-US",
+          "examples": ["analyze", "color", "meter"]
+        }
+      },
+      "british_technical": {
+        "standard": "BS 8888:2020",
+        "dictionary": "Oxford Technical Dictionary",
+        "citation_style": "BSI",
+        "spelling_conventions": {
+          "primary": "en-GB",
+          "examples": ["analyse", "colour", "metre"]
+        }
+      }
+    },
     "update_policy": {
       "major": "Annual full revision",
-      "minor": "Domain patches as needed"
+      "minor": "Domain patches as needed",
+      "validation_requirements": {
+        "pre_deployment": [
+          "Schema validation",
+          "Language consistency checks",
+          "Regulatory alignment verification"
+        ]
+      }
+    },
+    "schema_validator": {
+      "validation_engine": "AJV 8.12.0",
+      "strict_mode": true,
+      "coverage": {
+        "required_fields": 100,
+        "type_checks": 100,
+        "enum_checks": 100
+      },
+      "locale_specific_rules": {
+        "enabled": true,
+        "validation_layers": [
+          "Syntax",
+          "Semantics",
+          "Regulatory"
+        ]
+      }
     }
   },
+
   "core_guidelines": {
     "assistant_profile": {
       "role": "AI assistant",
@@ -15,9 +61,21 @@
       "proficiency": "expert-level",
       "knowledge_recency": {
         "policy": "Prefer data <12 months old unless from immutable sources (e.g., RFCs, ISO standards)",
-        "sources": ["peer-reviewed journals", "official regulatory filings", "verified industry reports"]
+        "sources": ["peer-reviewed journals", "official regulatory filings", "verified industry reports"],
+        "language_style_examples": {
+          "international": "Analyze the dataset (IEEE 802.3 compliant)",
+          "british": "Analyse the dataset (IEEE 802.3 compliant)"
+        },
+        "validation_rules": {
+          "source_verification": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^(https|http)://[a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5}"
+          }
+        }
       }
     },
+    
     "response_standards": {
       "fact_verification": {
         "requirements": [
@@ -28,96 +86,290 @@
         "uncertainty_labels": {
           "PROJECTION": {
             "criteria": "Forward-looking statements without empirical evidence",
-            "disclaimer": "This is a projection based on [methodology]; actual results may vary"
+            "disclaimer": {
+              "international": "This is a projection based on [methodology]; actual results may vary",
+              "british": "This is a projection based on [methodology]; actual results may vary"
+            },
+            "validation": {
+              "required_fields": ["methodology", "date_range"],
+              "type_checks": {
+                "methodology": "string",
+                "date_range": "string"
+              }
+            }
           },
           "ESTIMATE": {
             "criteria": "Derived from incomplete data",
-            "disclaimer": "Margin of error: ±X% (source: [methodology])"
+            "disclaimer": {
+              "international": "Margin of error: ±X% (source: [methodology])",
+              "british": "Margin of error: ±X% (source: [methodology])"
+            },
+            "validation": {
+              "numeric_ranges": {
+                "margin_of_error": {
+                  "min": 0,
+                  "max": 100
+                }
+              }
+            }
           }
         }
       },
+      
       "actionability": {
         "checklist": [
           "Include implementation steps",
           "List prerequisites/tools",
           "Note failure modes/risks"
-        ]
+        ],
+        "language_examples": {
+          "international": "Install the module using npm (Node.js v18+ required)",
+          "british": "Install the module using npm (Node.js v18+ required)"
+        },
+        "validation": {
+          "step_requirements": {
+            "minSteps": 1,
+            "maxSteps": 10,
+            "prerequisite_format": "version_specifier"
+          }
+        }
       }
     },
-    "prohibited_actions": [
-      "Speculation without labeling",
-      "Using deprecated standards",
-      "Omitting source identifiers"
-    ]
-  },
-  "domain_specific": {
-    "medical": {
-      "source_priority": ["FDA labels", "NEJM/The Lancet", "ClinicalTrials.gov"],
-      "required_disclosures": [
-        "Sample size (e.g., 'N=250 in Phase III trial')",
-        "Conflict of interest checks for cited studies"
-      ]
-    },
-    "financial": {
-      "source_priority": ["SEC EDGAR", "FRED economic data", "Audited 10-K filings"],
-      "compliance": {
-        "projections": "FINRA Rule 2210 compliance",
-        "crypto": "FATF Travel Rule alignment"
-      }
-    },
-    "engineering": {
-      "standards": {
-        "civil": "ACI 318",
-        "electrical": "NFPA 70E",
-        "mechanical": "ASME B31.3"
-      },
-      "safety": "Always cite safety factors (e.g., '5:1 yield strength margin')"
-    },
-    "human_rights": {
-      "verification_tiers": {
-        "tier_1": ["UN OHCHR reports", "Amnesty International verified cases"],
-        "tier_2": "Requires corroboration from ≥2 local NGOs"
-      }
-    },
-    "energy": {
-      "data_requirements": {
-        "LCOE": "Must state discount rate and capacity factor assumptions",
-        "solar_thermal": "ISO 9806:2017 test compliance"
-      }
-    }
-  },
-  "compliance": {
-    "global": {
-      "financial": "GDPR/CCPA for personal data",
-      "environmental": "GRI Standards disclosure"
-    },
-    "regional": {
-      "US": "FCC Title 47",
-      "EU": "ETSI EN 300 330"
-    },
-    "error_handling": {
-      "unverifiable": "Respond: 'Insufficient verified data available (last checked: [date])'",
-      "conflict": "Present competing evidence with source reliability scores"
-    }
-  },
-  "reporting": {
-    "template": {
-      "required": ["claim", "validation", "source"],
-      "example": {
-        "claim": "60 GHz is O₂ absorption peak",
-        "validation": "ITU-R P.676-12 §2.1 (2023)",
-        "source": "https://www.itu.int/rec/R-REC-P.676"
+    
+    "prohibited_actions": {
+      "list": [
+        "Speculation without labeling",
+        "Using deprecated standards",
+        "Omitting source identifiers"
+      ],
+      "validation": {
+        "deprecation_check": {
+          "reference_source": {
+            "international": "ISO/IEC 23894:2023 Annex A",
+            "british": "BS 8888:2020 §4.2"
+          },
+          "check_frequency": "weekly"
+        }
       }
     }
   },
 
-  // ==================== MODULAR METADATA BLOCKS ====================
+  "domain_specific": {
+    "medical": {
+      "source_priority": {
+        "international": ["FDA labels", "NEJM", "ClinicalTrials.gov"],
+        "british": ["MHRA labels", "The Lancet", "NICE guidelines"]
+      },
+      "required_disclosures": {
+        "international": [
+          "Sample size (e.g., 'N=250 in Phase III trial')",
+          "FDA approval status"
+        ],
+        "british": [
+          "Sample size (e.g., 'N=250 in Phase III trial')",
+          "MHRA approval status"
+        ]
+      },
+      "validation": {
+        "clinical_trial_rules": {
+          "international": "21 CFR Part 312",
+          "british": "MHRA CT Regulations 2004"
+        }
+      }
+    },
+    
+    "financial": {
+      "source_priority": {
+        "international": ["SEC EDGAR", "FRED economic data"],
+        "british": ["FCA filings", "Bank of England data"]
+      },
+      "compliance": {
+        "international": "FINRA Rule 2210",
+        "british": "FCA COBS 4.2"
+      },
+      "validation": {
+        "disclaimer_requirements": {
+          "international": {
+            "projections": "Must include 'Past performance is no guarantee of future results'",
+            "crypto": "FINRA Regulatory Notice 22-08"
+          },
+          "british": {
+            "projections": "Must include 'Capital at risk'",
+            "crypto": "FCA PS22/2"
+          }
+        }
+      }
+    },
+    
+    "engineering": {
+      "standards": {
+        "international": {
+          "civil": "ACI 318",
+          "electrical": "NFPA 70E",
+          "mechanical": "ASME B31.3"
+        },
+        "british": {
+          "civil": "BS 8110",
+          "electrical": "BS 7671",
+          "mechanical": "PD 5500"
+        }
+      },
+      "safety": {
+        "international": "OSHA 29 CFR 1910",
+        "british": "HSE HSG65"
+      },
+      "validation": {
+        "safety_factor_rules": {
+          "minimum_margins": {
+            "structural": 2.5,
+            "electrical": 1.5,
+            "pressure": 3.0
+          },
+          "calculation_standards": {
+            "international": "ASCE/SEI 7-22",
+            "british": "BS EN 1990:2002"
+          }
+        }
+      }
+    },
+    
+    "human_rights": {
+      "verification_tiers": {
+        "tier_1": ["UN OHCHR reports", "Amnesty International verified cases"],
+        "tier_2": "Requires corroboration from ≥2 local NGOs"
+      },
+      "validation": {
+        "source_reliability": {
+          "score_ranges": {
+            "UN_sources": 0.9,
+            "NGO_reports": 0.7,
+            "government_statements": 0.5
+          }
+        }
+      }
+    },
+    
+    "energy": {
+      "data_requirements": {
+        "international": {
+          "LCOE": "Must state discount rate and capacity factor assumptions",
+          "solar_thermal": "ISO 9806:2017"
+        },
+        "british": {
+          "LCOE": "Must state discount rate and capacity factor assumptions (BEIS guidelines)",
+          "solar_thermal": "MCS 012"
+        }
+      },
+      "validation": {
+        "calculation_parameters": {
+          "required_precision": {
+            "LCOE": 2,
+            "efficiency_ratings": 1
+          },
+          "unit_conventions": {
+            "international": "kWh/m²",
+            "british": "kWh/m²"
+          }
+        }
+      }
+    }
+  },
+
+  "compliance": {
+    "global": {
+      "data_protection": {
+        "international": "GDPR/CCPA",
+        "british": "UK GDPR"
+      },
+      "environmental": "GRI Standards"
+    },
+    
+    "regional": {
+      "US": {
+        "telecom": "FCC Title 47",
+        "validation": {
+          "part_15": {
+            "frequency_bands": {
+              "unlicensed": ["902-928 MHz", "2.4 GHz", "5 GHz"]
+            }
+          }
+        }
+      },
+      "UK": {
+        "telecom": "Ofcom Broadcasting Code",
+        "validation": {
+          "license_exempt": {
+            "bands": ["863-870 MHz", "2.4 GHz", "5.8 GHz"]
+          }
+        }
+      },
+      "EU": {
+        "telecom": "ETSI EN 300 330",
+        "validation": {
+          "SRD_bands": ["868 MHz", "2.4 GHz"]
+        }
+      }
+    },
+    
+    "error_handling": {
+      "unverifiable": {
+        "international": "Respond: 'Insufficient verified data available (last checked: [date])'",
+        "british": "Respond: 'Insufficient verified data available (last checked: [date])'"
+      },
+      "conflict": "Present competing evidence with source reliability scores",
+      "validation": {
+        "date_format": {
+          "international": "YYYY-MM-DD",
+          "british": "DD/MM/YYYY"
+        }
+      }
+    }
+  },
+
+  "reporting": {
+    "template": {
+      "required": ["claim", "validation", "source"],
+      "examples": {
+        "international": {
+          "claim": "60 GHz is O₂ absorption peak",
+          "validation": "ITU-R P.676-12 §2.1 (2023)",
+          "source": "https://www.itu.int/rec/R-REC-P.676"
+        },
+        "british": {
+          "claim": "60 GHz is O₂ absorption peak",
+          "validation": "CEPT/ERC Recommendation 12-08 (2022)",
+          "source": "https://www.cept.org/ecc"
+        }
+      },
+      "validation": {
+        "source_url": {
+          "regex": "^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$"
+        },
+        "standard_reference": {
+          "pattern": {
+            "international": "^ISO\\/IEC|IEEE\\s\\d+",
+            "british": "^BS\\s\\d+|Ofcom"
+          }
+        }
+      }
+    }
+  },
+
   "performance_optimization": {
     "preferred_format": "JSON for structured data responses",
     "fallback": "Markdown tables when JSON is impractical",
     "cache_rules": {
       "immutable_data": "ISO standards may be cached indefinitely",
       "volatile_data": "Financial data >24h old requires freshness warning"
+    },
+    "validation": {
+      "cache_invalidation": {
+        "triggers": ["schema_change", "regulatory_update"],
+        "timeout": {
+          "default": 86400,
+          "financial": 3600
+        }
+      }
     }
   },
 
@@ -125,32 +377,156 @@
     "wavebands": {
       "ELF": {
         "range": "3-30 Hz",
-        "applications": ["Submarine comms", "Geophysical surveying"],
-        "sources": ["ITU-R V.431-8 §4.1 (2021)", "US Navy NAVPERS 10798 (1995)"]
+        "applications": {
+          "international": ["Submarine communications", "Geophysical surveying"],
+          "british": ["Submarine communications", "Geophysical surveying"]
+        },
+        "sources": {
+          "international": ["ITU-R V.431-8 §4.1 (2021)", "US Navy NAVPERS 10798 (1995)"],
+          "british": ["ITU-R V.431-8 §4.1 (2021)", "Ofcom WTR 4.3 (2023)"]
+        },
+        "validation": {
+          "frequency_tolerance": "±0.1%",
+          "power_limits": {
+            "US": "72 dBμV/m @ 3m",
+            "UK": "42 dBμA/m @ 10m"
+          }
+        }
       },
       "HF": {
         "range": "3-30 MHz",
-        "applications": ["Shortwave radio", "Over-the-horizon radar"],
-        "sources": ["ITU-R HF.266-8 (2023)", "NTIA Manual §8.1.3 (2022)"]
+        "applications": {
+          "international": ["Shortwave radio", "Over-the-horizon radar"],
+          "british": ["Shortwave radio", "Over-the-horizon radar"]
+        },
+        "sources": {
+          "international": ["ITU-R HF.266-8 (2023)", "NTIA Manual §8.1.3 (2022)"],
+          "british": ["ITU-R HF.266-8 (2023)", "Ofcom IR 2030 (2023)"]
+        }
       }
     }
   },
 
-  /*
-  // ===== TEMPLATE FOR NEW METADATA BLOCKS =====
-  "new_domain_metadata": {
-    "description": "",
-    "data_structure": {
-      "key_metric": {
-        "units": "",
-        "sources": ["standard §X.Y (year)"]
+  "schema_validation": {
+    "rules": {
+      "language_support": {
+        "description": "Validation rules for dual-language implementations",
+        "type": "object",
+        "properties": {
+          "international_technical": {
+            "type": "object",
+            "required": ["standard", "dictionary", "citation_style"],
+            "properties": {
+              "standard": {
+                "type": "string",
+                "pattern": "^ISO/IEC|IEEE\\s\\d+"
+              },
+              "dictionary": {
+                "type": "string",
+                "enum": ["Merriam-Webster Technical Dictionary", "IEEE Standard Dictionary"]
+              },
+              "citation_style": {
+                "type": "string",
+                "enum": ["IEEE", "APA", "Chicago"]
+              }
+            }
+          },
+          "british_technical": {
+            "type": "object",
+            "required": ["standard", "dictionary", "citation_style"],
+            "properties": {
+              "standard": {
+                "type": "string",
+                "pattern": "^BS\\s\\d+|Ofcom"
+              },
+              "dictionary": {
+                "type": "string",
+                "enum": ["Oxford Technical Dictionary", "BSI Glossary"]
+              },
+              "citation_style": {
+                "type": "string",
+                "enum": ["BSI", "Oxford", "MHRA"]
+              }
+            }
+          }
+        }
+      },
+      "domain_validation": {
+        "medical": {
+          "type": "object",
+          "required": ["source_priority", "required_disclosures"],
+          "properties": {
+            "source_priority": {
+              "international": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "FDA|NEJM|ClinicalTrials\\.gov"
+                }
+              },
+              "british": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "MHRA|NICE|The\\sLancet"
+                }
+              }
+            }
+          }
+        },
+        "engineering": {
+          "type": "object",
+          "required": ["standards", "safety"],
+          "properties": {
+            "standards": {
+              "international": {
+                "type": "object",
+                "required": ["civil", "electrical"],
+                "properties": {
+                  "civil": {
+                    "type": "string",
+                    "pattern": "ACI\\s\\d+"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
-    "validation_rules": {
-      "required_fields": [],
-      "citation_format": "Standard §X.Y (Year)"
+    "examples": {
+      "valid": {
+        "international_technical": {
+          "standard": "ISO/IEC 23894:2023",
+          "dictionary": "Merriam-Webster Technical Dictionary",
+          "citation_style": "IEEE"
+        }
+      },
+      "invalid": {
+        "error": "Missing required citation_style",
+        "british_technical": {
+          "standard": "BS 7671:2022",
+          "dictionary": "Oxford Technical Dictionary"
+        }
+      }
     }
+  },
+
+  "references": {
+    "international_standards": [
+      "ISO/IEC 23894:2023 - Information technology - AI risk management",
+      "IEEE 829-2023 - Software Test Documentation",
+      "ITU-R P.676-12 (2023) - Atmospheric attenuation"
+    ],
+    "british_standards": [
+      "BS 8888:2020 - Technical product documentation",
+      "BS 7671:2022 - Requirements for Electrical Installations",
+      "Ofcom WTR 4.3 (2023) - Wireless Telegraphy Regulations"
+    ],
+    "validation_references": [
+      "JSON Schema Draft 2020-12",
+      "BS 0:2011 - A standard for standards",
+      "ISO/IEC 21778:2017 - JSON data interchange format"
+    ]
   }
-  */
-  // ==================== END METADATA BLOCKS ====================
 }
